@@ -41,7 +41,7 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Package'
   inputs:
-    PathtoPublish: '$(Build.ArtifactS)'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'TailSpin'
 
 - task: DotNetCoreCLI@2
