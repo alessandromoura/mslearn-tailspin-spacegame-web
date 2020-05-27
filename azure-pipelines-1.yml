@@ -16,6 +16,21 @@ stages:
       vmImage: 'windows-latest'
 
     steps:
+    - task: AzureResourceManagerTemplateDeployment@3
+      displayName: 'Validate Infrastructure'
+      inputs:
+        deploymentScope: 'Resource Group'
+        azureResourceManagerConnection: 'sp-tailspin-am-dev'
+        subscriptionId: '9a351677-dd5f-4242-ac24-ca47976bf412'
+        action: 'Create Or Update Resource Group'
+        resourceGroupName: 'DevOpsDay'
+        location: 'Australia East'
+        templateLocation: 'Linked artifact'
+        csmFile: 'Templates/azuredeploy.json'
+        csmParametersFile: 'Templates/azuredeploy.parameters.dev.json'
+        deploymentMode: 'Validation'
+
+
     - task: DotNetCoreCLI@2
       displayName: 'Restore Packages'
       inputs:
