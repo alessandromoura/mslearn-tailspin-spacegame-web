@@ -1,0 +1,301 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "functionAppName": {
+            "type": "String"
+        },
+        "servicePlanName":{
+            "type": "String"
+        },
+        "storageAccountName": {
+            "type": "String"
+        },
+        "storageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_ZRS",
+                "Premium_LRS"
+            ],
+            "metadata": {
+                "description": "Storage Account type"
+            }
+        },
+        "appInsightsName": {
+            "type": "String"
+        },
+        "sku": {
+            "type": "String"
+        },
+        "skuCode": {
+            "type": "String"
+        },
+        "workerSize": {
+            "type": "String"
+        },
+        "workerSizeId": {
+            "type": "String"
+        },
+        "numberOfWorkers": {
+            "type": "String"
+        },
+        "tagEnvironmentName": {
+            "type": "String"
+        },
+        "tagTribe": {
+            "type": "String"
+        },
+        "tagSquad": {
+            "type": "String"
+        },
+        "tagProject": {
+            "type": "String"
+        },
+        "tagDeveloper": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "keyVaultName": {
+            "type": "String"
+        },
+        "tenantId": {
+            "type": "String"
+        },
+        "servicePrincipalId": {
+            "type": "String"
+        },
+        "adminId": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-11-01",
+            "name": "[parameters('servicePlanName')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "Tribe": "[parameters('tagTribe')]",
+                "Squad": "[parameters('tagSquad')]",
+                "Developer": "[parameters('tagDeveloper')]",
+                "Environment": "[parameters('tagEnvironmentName')]",
+                "Project": "[parameters('tagProject')]"
+            },
+            "sku": {
+                "name": "[parameters('skuCode')]",
+                "tier": "[parameters('sku')]"
+            },
+            "kind": "",
+            "properties": {
+                "name": "[parameters('servicePlanName')]",
+                "workerSize": "[parameters('workerSize')]",
+                "workerSizeId": "[parameters('workerSizeId')]",
+                "numberOfWorkers": "[parameters('numberOfWorkers')]",
+                "hostingEnvironment": ""
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[parameters('functionAppName')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "Tribe": "[parameters('tagTribe')]",
+                "Squad": "[parameters('tagSquad')]",
+                "Developer": "[parameters('tagDeveloper')]",
+                "Environment": "[parameters('tagEnvironmentName')]",
+                "Project": "[parameters('tagProject')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Insights/components/', parameters('appInsightsName'))]",
+                "[concat('Microsoft.Web/serverfarms/', parameters('servicePlanName'))]"
+            ],
+            "kind": "functionapp",
+            "properties": {
+                "name": "[parameters('functionAppName')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~3"
+                        },
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "dotnet"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                            "value": "[reference(concat('microsoft.insights/components/', parameters('appInsightsName')), '2015-05-01').ConnectionString]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTSHARE",
+                            "value": "[concat(toLower(parameters('functionAppName')), 'a317')]"
+                        }
+                    ]
+                },
+                "serverFarmId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourcegroups/', resourceGroup().name, '/providers/Microsoft.Web/serverfarms/', parameters('servicePlanName'))]",
+                "hostingEnvironment": "",
+                "clientAffinityEnabled": true
+            }
+        },
+        {
+            "type": "microsoft.insights/components",
+            "apiVersion": "2015-05-01",
+            "name": "[parameters('appInsightsName')]",
+            "location": "australiaeast",
+            "tags": {
+                "Tribe": "[parameters('tagTribe')]",
+                "Squad": "[parameters('tagSquad')]",
+                "Developer": "[parameters('tagDeveloper')]",
+                "Environment": "[parameters('tagEnvironmentName')]",
+                "Project": "[parameters('tagProject')]"
+            },
+            "properties": {
+                "ApplicationId": "[parameters('functionAppName')]",
+                "Request_Source": "IbizaWebAppExtensionCreate"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "Tribe": "[parameters('tagTribe')]",
+                "Squad": "[parameters('tagSquad')]",
+                "Developer": "[parameters('tagDeveloper')]",
+                "Environment": "[parameters('tagEnvironmentName')]",
+                "Project": "[parameters('tagProject')]"
+            },
+            "sku": {
+                "name": "[parameters('storageAccountType')]"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "supportsHttpsTrafficOnly": true
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccountName'), '/default/budgetreport')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "apiVersion": "2018-02-14",
+            "name": "[parameters('keyVaultName')]",
+            "location": "[parameters('location')]",
+            "type": "Microsoft.KeyVault/vaults",
+            "dependsOn": [],
+            "tags": {
+                "Tribe": "[parameters('tagTribe')]",
+                "Squad": "[parameters('tagSquad')]",
+                "Developer": "[parameters('tagDeveloper')]",
+                "Environment": "[parameters('tagEnvironmentName')]",
+                "Project": "[parameters('tagProject')]"
+            },
+            "properties": {
+                "enabledForDeployment": "false",
+                "enabledForTemplateDeployment": "true",
+                "enabledForDiskEncryption": "false",
+                "enableRbacAuthorization": "false",
+                "accessPolicies": [
+                    {
+                        "objectId": "[parameters('servicePrincipalId')]",
+                        "tenantId": "[parameters('tenantId')]",
+                        "permissions": {
+                            "keys": [],
+                            "secrets": [
+                                "Get",
+                                "List",
+                                "Set"
+                            ],
+                            "certificates": []
+                        },
+                        "applicationId": null
+                    },
+                    {
+                        "objectId": "[parameters('adminId')]",
+                        "tenantId": "[parameters('tenantId')]",
+                        "permissions": {
+                            "keys": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "secrets": [
+                                "Get",
+                                "List",
+                                "Set",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "certificates": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore",
+                                "ManageContacts",
+                                "ManageIssuers",
+                                "GetIssuers",
+                                "ListIssuers",
+                                "SetIssuers",
+                                "DeleteIssuers"
+                            ]
+                        }
+                    }
+                ],
+                "tenantId": "[parameters('tenantId')]",
+                "sku": {
+                    "name": "Standard",
+                    "family": "A"
+                },
+                "enableSoftDelete": "true",
+                "softDeleteRetentionInDays": "90",
+                "networkAcls": {
+                    "value": {
+                        "defaultAction": "allow",
+                        "bypass": "AzureServices",
+                        "ipRules": [],
+                        "virtualNetworkRules": []
+                    }
+                }
+            }
+        }
+    ]
+}
