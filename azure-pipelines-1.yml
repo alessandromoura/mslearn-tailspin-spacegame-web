@@ -90,6 +90,33 @@ stages:
                 # Write your PowerShell commands here.
                 
                 Write-Host "Deploy in Development"
+          - task: AzureResourceManagerTemplateDeployment@3
+            displayName: 'Validate Infrastructure'
+            inputs:
+              deploymentScope: 'Resource Group'
+              azureResourceManagerConnection: 'sp-tailspin-am-dev'
+              subscriptionId: '9a351677-dd5f-4242-ac24-ca47976bf412'
+              action: 'Create Or Update Resource Group'
+              resourceGroupName: 'DevOpsDay'
+              location: 'Australia East'
+              templateLocation: 'Linked artifact'
+              csmFile: 'Tailspin.SpaceGame.Web/Templates/azuredeploy.json'
+              csmParametersFile: 'Tailspin.SpaceGame.Web/Templates/azuredeploy.parameters.dev.json'
+              deploymentMode: 'Incremental'
+
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Build Artifacts'
+            inputs:
+              patterns: '**/*.zip'
+              path: '$(Build.ArtifactStagingDirectory)'
+
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'sp-tailspin-am-dev'
+              appType: 'webApp'
+              WebAppName: 'webapp-tailspin-am-dev'
+              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
 
 - stage: DeployQA
   displayName: 'Deploy QA'
