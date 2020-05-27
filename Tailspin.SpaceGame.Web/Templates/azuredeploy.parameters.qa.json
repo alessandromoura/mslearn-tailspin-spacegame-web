@@ -2,65 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": { 
-        "functionAppName":{
-            "value": "fapp-budget-report-sb"
+        "webAppName":{
+            "value": "webapp-tailspin-am-qa"
         },
         "servicePlanName": {   
-            "value": "splan-budget-report-sb"
+            "value": "splan-tailspin-am-qa"
         },
         "appInsightsName": {
-            "value": "insights-budget-report-sb"
-        },
-        "storageAccountName": {
-            "value": "sabudgetreportsb"
-        },
-        "storageAccountType": {
-            "value": "Standard_LRS"
-        },
-        "sku": {
-            "value": "Dynamic"
-        },
-        "skuCode": {
-            "value": "Y1"
-        },
-        "workerSize": {
-            "value": "0"
-        },
-        "workerSizeId": {
-            "value": "0"
-        },
-        "numberOfWorkers": {
-            "value": "1"
-        },
-        "tagEnvironmentName": {
-            "value": "Sandbox"
-        },
-        "tagTribe": {
-            "value": "Digital Practice"
-        },
-        "tagSquad": {
-            "value": "Integration Chapter"
-        },
-        "tagProject": {
-            "value": "Budget Report"
-        },
-        "tagDeveloper": {
-            "value": "Alessandro Moura"
+            "value": "insights-tailspin-am-qa"
         },
         "location": {
             "value": "australiaeast"
-        },
-        "keyVaultName": {
-            "value": "kv-budget-report-sb"
-        },
-        "tenantId": {
-            "value": "5cb9fead-91c6-4e06-b693-1a224ecb6412"
-        },
-        "servicePrincipalId": {
-            "value": "8055eeb6-7bff-4539-ae89-d4224147fd92"
-        },
-        "adminId": {
-            "value": "1dc85042-b1b8-4d5f-8f6b-798bf4fdfd98"
         }
     }
 }
