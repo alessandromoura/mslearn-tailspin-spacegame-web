@@ -1,0 +1,101 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+stages:
+- stage: Build
+  displayName: 'Build'
+
+  jobs:
+  - job: BuildDEV
+    pool:
+      vmImage: 'windows-latest'
+
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore Packages'
+      inputs:
+        command: restore
+        projects: '**/*.sln'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build WebApp'
+      inputs:
+        command: build
+        projects: '**/*.sln'
+        arguments: '--configuration Debug'
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Create Package'
+      inputs:
+        command: publish
+        projects: '**/*.sln'
+        arguments: '--configuration Debug --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: true
+        publishWebProjects: true
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Package'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'TailSpin'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Test Package'
+      inputs:
+        command: test
+        projects: '**/*.sln'
+        arguments: '--configuration Debug'
+
+- stage: DeployDEV
+  displayName: 'Deploy Development'
+
+  jobs:
+  - deployment: Deploy
+    displayName: 'Deploy Development'
+    pool:
+      vmImage: 'windows-latest'
+
+    environment: 'Development'
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: none
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                # Write your PowerShell commands here.
+                
+                Write-Host "Deploy in Development"
+
+- stage: DeployQA
+  displayName: 'Deploy QA'
+
+  jobs:
+  - deployment: Deploy
+    displayName: 'Deploy QA'
+    pool:
+      vmImage: 'windows-latest'
+
+    environment: 'QA'
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: none
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                # Write your PowerShell commands here.
+                
+                Write-Host "Deploy in QA"
