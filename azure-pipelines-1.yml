@@ -120,7 +120,7 @@ stages:
               azureSubscription: 'sp-tailspin-am-dev'
               appType: 'webApp'
               WebAppName: 'webapp-tailspin-am-dev'
-              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+              packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
 
 - stage: DeployQA
   displayName: 'Deploy QA'
