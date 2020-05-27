@@ -27,7 +27,7 @@ stages:
         location: 'Australia East'
         templateLocation: 'Linked artifact'
         csmFile: 'Tailspin.SpaceGame.Web/Templates/azuredeploy.json'
-        csmParametersFile: 'Templates/azuredeploy.parameters.dev.json'
+        csmParametersFile: 'Tailspin.SpaceGame.Web/Templates/azuredeploy.parameters.dev.json'
         deploymentMode: 'Validation'
 
 
