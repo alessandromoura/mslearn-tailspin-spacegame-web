@@ -77,7 +77,7 @@ stages:
         backendServiceArm: 'rg-devopsday-am-sb'
         ensureBackend: true
         backendAzureRmResourceGroupName: 'rg-devopsday-am-sb'
-        backendAzureRmResourceGroupLocation: 'Australia East'
+        backendAzureRmResourceGroupLocation: 'AustraliaEast'
         backendAzureRmStorageAccountName: 'saterraformamsb'
         backendAzureRmStorageAccountSku: 'Standard_LRS'
         backendAzureRmContainerName: 'deployments'
