@@ -133,7 +133,7 @@ stages:
           - task: AzureRmWebAppDeployment@4
             inputs:
               ConnectionType: 'AzureRM'
-              azureSubscription: 'sp-tailspin-am-dev'
+              azureSubscription: 'sp-devopsday-am-sb'
               appType: 'webApp'
               WebAppName: 'webapp-tailspin-am-dev'
               packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
