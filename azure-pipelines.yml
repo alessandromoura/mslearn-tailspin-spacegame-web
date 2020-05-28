@@ -16,20 +16,6 @@ stages:
       vmImage: 'windows-latest'
 
     steps:
-    - task: AzureResourceManagerTemplateDeployment@3
-      displayName: 'Validate Infrastructure'
-      inputs:
-        deploymentScope: 'Resource Group'
-        azureResourceManagerConnection: 'sp-tailspin-am-dev'
-        subscriptionId: '9a351677-dd5f-4242-ac24-ca47976bf412'
-        action: 'Create Or Update Resource Group'
-        resourceGroupName: 'DevOpsDay'
-        location: 'Australia East'
-        templateLocation: 'Linked artifact'
-        csmFile: 'ARMTemplates/azuredeploy.json'
-        csmParametersFile: 'ARMTemplates/azuredeploy.parameters.dev.json'
-        deploymentMode: 'Validation'
-
 
     - task: DotNetCoreCLI@2
       displayName: 'Restore Packages'
@@ -67,6 +53,24 @@ stages:
         projects: '**/*.sln'
         arguments: '--configuration Debug'
 
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: '0.12.23'
+
+    - task: TerraformTaskV1@0
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
+
+    - task: TerraformTaskV1@0
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
+        environmentServiceNameAzureRM: 'sp-budget-report-sb'
+
+
 - stage: DeployDEV
   displayName: 'Deploy Development'
 
@@ -96,7 +100,7 @@ stages:
           - task: TerraformTaskV1@0
             inputs:
               provider: 'azurerm'
-              command: 'plan'
+              command: 'apply'
               workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
               environmentServiceNameAzureRM: 'sp-budget-report-sb'
 
