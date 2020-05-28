@@ -53,7 +53,17 @@ stages:
         projects: '**/*.sln'
         arguments: '--configuration Debug'
 
-    
+    - task: replacetokens@3
+      inputs:
+        targetFiles: '**/*.tf'
+        encoding: 'auto'
+        writeBOM: true
+        actionOnMissing: 'warn'
+        keepToken: false
+        tokenPrefix: '__'
+        tokenSuffix: '__'
+        useLegacyPattern: false
+        enableTelemetry: true
     - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
       displayName: 'Use Terraform 0.12.23'
       inputs:
@@ -109,11 +119,11 @@ stages:
               backendServiceArm: 'rg-devopsday-am-sb'
               ensureBackend: true
               backendAzureRmResourceGroupName: 'rg-devopsday-am-sb'
-              backendAzureRmResourceGroupLocation: 'Australia East'
+              backendAzureRmResourceGroupLocation: 'AustraliaEast'
               backendAzureRmStorageAccountName: 'saterraformamsb'
               backendAzureRmStorageAccountSku: 'Standard_LRS'
-              backendAzureRmContainerName: 'deployments'
-              backendAzureRmKey: 'terraform'
+              backendAzureRmContainerName: 'terraform'
+              backendAzureRmKey: 'terraform.tfstate'
 
           - task: TerraformCLI@0
             inputs:
