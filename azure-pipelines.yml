@@ -57,18 +57,25 @@ stages:
       inputs:
         terraformVersion: '0.12.23'
 
-    - task: TerraformTaskV1@0
+    - task: TerraformCLI@0
       inputs:
-        provider: 'azurerm'
         command: 'init'
         workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
+        backendType: 'azurerm'
+        backendServiceArm: 'rg-devopsday-am-sb'
+        ensureBackend: true
+        backendAzureRmResourceGroupName: 'rg-devopsday-am-sb'
+        backendAzureRmResourceGroupLocation: 'Australia East'
+        backendAzureRmStorageAccountName: 'saterraformamsb'
+        backendAzureRmStorageAccountSku: 'Standard_LRS'
+        backendAzureRmContainerName: 'deployments'
+        backendAzureRmKey: 'terraform'
 
-    - task: TerraformTaskV1@0
+    - task: TerraformCLI@0
       inputs:
-        provider: 'azurerm'
         command: 'plan'
         workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
-        environmentServiceNameAzureRM: 'sp-budget-report-sb'
+        environmentServiceName: 'rg-devopsday-am-sb'
 
 
 - stage: DeployDEV
