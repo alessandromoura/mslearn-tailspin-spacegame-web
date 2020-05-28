@@ -53,7 +53,7 @@ stages:
         projects: '**/*.sln'
         arguments: '--configuration Debug'
 
-    - task: replacetokens@3
+    - task: qetza.replacetokens.replacetokens-task.replacetokens@3
       inputs:
         targetFiles: '**/*.tf'
         encoding: 'auto'
