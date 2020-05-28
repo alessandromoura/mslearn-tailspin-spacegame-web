@@ -6,47 +6,136 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'windows-latest'
+stages:
+- stage: Build
+  displayName: 'Build'
 
-variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  jobs:
+  - job: BuildDEV
+    pool:
+      vmImage: 'windows-latest'
 
-steps:
-- task: DotNetCoreCLI@2
-  displayName: 'Restore Packages'
-  inputs:
-    command: restore
-    projects: '**/*.sln'
+    steps:
+    - task: AzureResourceManagerTemplateDeployment@3
+      displayName: 'Validate Infrastructure'
+      inputs:
+        deploymentScope: 'Resource Group'
+        azureResourceManagerConnection: 'sp-tailspin-am-dev'
+        subscriptionId: '9a351677-dd5f-4242-ac24-ca47976bf412'
+        action: 'Create Or Update Resource Group'
+        resourceGroupName: 'DevOpsDay'
+        location: 'Australia East'
+        templateLocation: 'Linked artifact'
+        csmFile: 'ARMTemplates/azuredeploy.json'
+        csmParametersFile: 'ARMTemplates/azuredeploy.parameters.dev.json'
+        deploymentMode: 'Validation'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Build WebApp'
-  inputs:
-    command: build
-    projects: '**/*.sln'
-    arguments: '--configuration Debug'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Create Package'
-  inputs:
-    command: publish
-    projects: '**/*.sln'
-    arguments: '--configuration Debug --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: true
-    publishWebProjects: true
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore Packages'
+      inputs:
+        command: restore
+        projects: '**/*.sln'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Package'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'TailSpin'
+    - task: DotNetCoreCLI@2
+      displayName: 'Build WebApp'
+      inputs:
+        command: build
+        projects: '**/*.sln'
+        arguments: '--configuration Debug'
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Test Package'
-  inputs:
-    command: test
-    projects: '**/*.sln'
-    arguments: '--configuration Debug'
+    - task: DotNetCoreCLI@2
+      displayName: 'Create Package'
+      inputs:
+        command: publish
+        projects: '**/*.sln'
+        arguments: '--configuration Debug --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: true
+        publishWebProjects: true
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Package'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'TailSpin'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Test Package'
+      inputs:
+        command: test
+        projects: '**/*.sln'
+        arguments: '--configuration Debug'
+
+- stage: DeployDEV
+  displayName: 'Deploy Development'
+
+  jobs:
+  - deployment: Deploy
+    displayName: 'Deploy Development'
+    pool:
+      vmImage: 'windows-latest'
+
+    environment: 'Development'
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: TerraformInstaller@0
+            inputs:
+              terraformVersion: '0.12.23'
+
+          - task: TerraformTaskV1@0
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
+
+          - task: TerraformTaskV1@0
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Terraform'
+              environmentServiceNameAzureRM: 'sp-budget-report-sb'
+
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Build Artifacts'
+            inputs:
+              buildType: 'current'
+              itemPattern: 
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+
+
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'sp-tailspin-am-dev'
+              appType: 'webApp'
+              WebAppName: 'webapp-tailspin-am-dev'
+              packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+
+- stage: DeployQA
+  displayName: 'Deploy QA'
+
+  jobs:
+  - deployment: Deploy
+    displayName: 'Deploy QA'
+    pool:
+      vmImage: 'windows-latest'
+
+    environment: 'QA'
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: none
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                # Write your PowerShell commands here.
+                
+                Write-Host "Deploy in QA"
