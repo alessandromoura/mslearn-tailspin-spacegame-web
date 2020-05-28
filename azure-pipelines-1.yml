@@ -26,8 +26,8 @@ stages:
         resourceGroupName: 'DevOpsDay'
         location: 'Australia East'
         templateLocation: 'Linked artifact'
-        csmFile: 'Tailspin.SpaceGame.Web/Templates/azuredeploy.json'
-        csmParametersFile: 'Tailspin.SpaceGame.Web/Templates/azuredeploy.parameters.dev.json'
+        csmFile: 'ARMTemplates/azuredeploy.json'
+        csmParametersFile: 'ARMTemplates/azuredeploy.parameters.dev.json'
         deploymentMode: 'Validation'
 
 
@@ -102,8 +102,8 @@ stages:
               resourceGroupName: 'DevOpsDay'
               location: 'Australia East'
               templateLocation: 'Linked artifact'
-              csmFile: '$(Build.SourcesDirectory)/Tailspin.SpaceGame.Web/Templates/azuredeploy.json'
-              csmParametersFile: '$(Build.SourcesDirectory)/Tailspin.SpaceGame.Web/Templates/azuredeploy.parameters.dev.json'
+              csmFile: '$(Build.SourcesDirectory)/ARMTemplates/azuredeploy.json'
+              csmParametersFile: '$(Build.SourcesDirectory)/ARMTemplates/azuredeploy.parameters.dev.json'
               deploymentMode: 'Incremental'
 
           - task: DownloadPipelineArtifact@2
