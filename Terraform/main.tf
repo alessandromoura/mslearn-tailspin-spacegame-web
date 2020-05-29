@@ -2,15 +2,10 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_resource_group" "main" {
-  name      = "__resource_group_name__"
-  location  = "__location__"
-}
-
 resource "azurerm_app_service_plan" "main" {
   name                = "__service_plan_name__"
-  location            = "${azurerm_resource_group.main.location}"
-  resource_group_name = "${azurerm_resource_group.main.name}"
+  location            = "__location__"
+  resource_group_name = "__resource_group_name__"
   
   sku {
     tier = "Free"
@@ -20,7 +15,7 @@ resource "azurerm_app_service_plan" "main" {
 
 resource "azurerm_app_service" "main" {
   name                = "__app_service_name__"
-  location            = "${azurerm_resource_group.main.location}"
-  resource_group_name = "${azurerm_resource_group.main.name}"
+  location            = "__location__"
+  resource_group_name = "__location__"
   app_service_plan_id = "${azurerm_app_service_plan.main.id}"
 }
