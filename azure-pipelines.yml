@@ -80,8 +80,8 @@ stages:
         backendAzureRmResourceGroupLocation: 'AustraliaEast'
         backendAzureRmStorageAccountName: 'saterraformamsb'
         backendAzureRmStorageAccountSku: 'Standard_LRS'
-        backendAzureRmContainerName: 'deployments'
-        backendAzureRmKey: 'terraform'
+        backendAzureRmContainerName: 'terraform'
+        backendAzureRmKey: 'terraform.tfstate'
 
     - task: TerraformCLI@0
       inputs:
