@@ -106,6 +106,17 @@ stages:
         deploy:
           steps:
           - checkout: self
+          - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+            inputs:
+              targetFiles: '**/*.tf'
+              encoding: 'auto'
+              writeBOM: true
+              actionOnMissing: 'warn'
+              keepToken: false
+              tokenPrefix: '__'
+              tokenSuffix: '__'
+              useLegacyPattern: false
+              enableTelemetry: true
           - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
             displayName: 'Use Terraform 0.12.26'
             inputs:
