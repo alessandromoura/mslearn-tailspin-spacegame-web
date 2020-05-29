@@ -156,7 +156,7 @@ stages:
               ConnectionType: 'AzureRM'
               azureSubscription: 'rg-devopsday-am-sb'
               appType: 'webApp'
-              WebAppName: 'webapp-tailspin-am-dev'
+              WebAppName: 'webapp-devopsday-am-sb'
               packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
 
 - stage: DeployQA
