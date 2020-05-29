@@ -65,9 +65,9 @@ stages:
         useLegacyPattern: false
         enableTelemetry: true
     - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
-      displayName: 'Use Terraform 0.12.23'
+      displayName: 'Use Terraform 0.12.26'
       inputs:
-        terraformVersion: 0.12.23
+        terraformVersion: 0.12.26
 
     - task: TerraformCLI@0
       inputs:
@@ -107,9 +107,9 @@ stages:
           steps:
           - checkout: self
           - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
-            displayName: 'Use Terraform 0.12.23'
+            displayName: 'Use Terraform 0.12.26'
             inputs:
-              terraformVersion: 0.12.23
+              terraformVersion: 0.12.26
 
           - task: TerraformCLI@0
             inputs:
